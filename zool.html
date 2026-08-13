@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zool - English Grammar Game (Beginner)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #6c5ce7;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            animation: bounceIn 0.8s ease;
+            width: 100%;
+            max-width: 1100px;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 85px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .logo span {
+            display: inline-block;
+            text-shadow: 4px 4px 0px #333;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .logo .z1 { color: #ff7675; animation-delay: 0s; }
+        .logo .o1 { color: #ffeaa7; animation-delay: 0.2s; }
+        .logo .o2 { color: #55efc4; animation-delay: 0.4s; }
+        .logo .l  { color: #74b9ff; animation-delay: 0.6s; }
+
+        .play-btn {
+            background-color: #00b894;
+            color: #ffeaa7;
+            font-size: 38px;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            padding: 18px 60px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0px 8px 0px #00896b;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .play-btn:hover {
+            background-color: #55efc4;
+            transform: translateY(-3px);
+            box-shadow: 0px 11px 0px #00896b;
+        }
+
+        .levels-container, .topics-container, .game-config, .game-board-container, .question-modal, .winner-modal {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.5s ease;
+            width: 100%;
+            max-height: 90vh;
+            align-items: center;
+        }
+
+        .game-board-container {
+            max-width: 1000px;
+        }
+
+        .topics-container {
+            overflow-y: auto;
+            padding: 10px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 70vh;
+        }
+
+        .level-btn {
+            background-color: #fdcb6e;
+            color: #2d3436;
+            font-size: 26px;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            padding: 18px;
+            width: 100%;
+            max-width: 800px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0px 6px 0px #e1b12c;
+            transition: all 0.1s ease;
+        }
+
+        .level-btn:hover {
+            background-color: #ffeaa7;
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 0px #e1b12c;
+        }
+
+        .topic-item {
+            background-color: #0984e3;
+            color: #ffffff;
+            font-size: 22px;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            padding: 15px 20px;
+            border-radius: 20px;
+            box-shadow: 0px 6px 0px #074b83;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .topic-item:hover {
+            background-color: #74b9ff;
+            transform: translateY(-3px);
+            box-shadow: 0px 9px 0px #074b83;
+        }
+
+        .back-btn {
+            background-color: #d63031;
+            color: #ffffff;
+            font-size: 16px;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0px 4px 0px #8b0000;
+            margin-bottom: 10px;
+            align-self: flex-start;
+        }
+
+        .back-btn:hover {
+            background-color: #ff7675;
+        }
+
+        .config-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .config-title {
+            color: #ffeaa7;
+            font-size: 22px;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 0px #333;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .option-btn {
+            background-color: #fdcb6e;
+            color: #2d3436;
+            font-size: 20px;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0px 4px 0px #e1b12c;
+            transition: all 0.1s ease;
+        }
+
+        .option-btn:hover, .option-btn.selected {
+            background-color: #00b894;
+            color: #fff;
+            box-shadow: 0px 4px 0px #00896b;
+            transform: translateY(-2px);
+        }
+
+        .start-game-btn {
+            background-color: #00b894;
+            color: #fff;
+            font-size: 24px;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0px 6px 0px #00896b;
+            margin-top: 10px;
+        }
+
+        .start-game-btn:hover {
+            background-color: #55efc4;
+        }
+
+        .teams-scoreboard {
+            display: flex;
+            justify-content: space-around;
+            background-color: #ffeaa7;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0px 4px 0px #e1b12c;
+            width: 100%;
+        }
+
+        .team-box {
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin: 0 3px;
+        }
+
+        .team-box.active-turn {
+            background-color: #ff7675;
+            color: #ffffff;
+            box-shadow: 0px 4px 0px #d63031;
+        }
+
+        .team-name {
+            font-size: 17px;
+            color: #2d3436;
+            display: inline-block;
+        }
+
+        .team-box.active-turn .team-name {
+            color: #ffffff;
+        }
+
+        .team-score {
+            font-size: 19px;
+            color: #2d3436;
+        }
+
+        .team-box.active-turn .team-score {
+            color: #ffffff;
+        }
+
+        .grid-board {
+            display: grid;
+            gap: 12px;
+            width: 100%;
+            overflow-y: auto;
+            max-height: 60vh;
+            padding-bottom: 10px;
+        }
+
+        .grid-cell {
+            background-color: #0984e3;
+            color: #ffffff;
+            font-size: 32px;
+            font-family: 'Fredoka One', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0px 6px 0px #074b83;
+            transition: all 0.1s ease;
+            padding: 18px 0;
+        }
+
+        .grid-cell:hover {
+            background-color: #74b9ff;
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 0px #074b83;
+        }
+
+        .grid-cell.opened {
+            background-color: #fdcb6e;
+            color: #e1b12c;
+            box-shadow: 0px 2px 0px #e1b12c;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .question-card, .winner-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 850px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            animation: bounceIn 0.4s ease;
+        }
+
+        .winner-card {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .winner-title {
+            font-size: 48px;
+            color: #ff7675;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px #333;
+        }
+
+        .winner-text {
+            font-size: 36px;
+            color: #0984e3;
+            margin-bottom: 30px;
+        }
+
+        .q-header {
+            background-color: #0984e3;
+            color: #ffffff;
+            font-size: 28px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .q-body {
+            padding: 30px;
+            text-align: center;
+            color: #2d3436;
+        }
+
+        .q-text {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .q-answer-box {
+            background-color: #f1f2f6;
+            border: 3px solid #dfe4ea;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 28px;
+            color: #2f3542;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .q-footer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .ans-btn {
+            font-family: 'Fredoka One', cursive, sans-serif;
+            font-size: 20px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            color: #ffffff;
+            box-shadow: 0px 4px 0px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        .ans-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-check {
+            background-color: #0984e3;
+        }
+
+        .btn-oops {
+            background-color: #ff4757;
+            display: none;
+        }
+
+        .btn-okay {
+            background-color: #2ed573;
+            display: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Z O O L yozuvi -->
+        <div class="logo" id="logoSection">
+            <span class="z1">Z</span>
+            <span class="o1">o</span>
+            <span class="o2">o</span>
+            <span class="l">l</span>
+        </div>
+
+        <!-- PLAY tugmasi -->
+        <div id="mainMenu">
+            <button class="play-btn" onclick="showLevels()">PLAY</button>
+        </div>
+
+        <!-- Darajalar menyusi -->
+        <div class="levels-container" id="levelsMenu">
+            <button class="back-btn" onclick="goBackToMain()">⬅ Orqaga</button>
+            <button class="level-btn" onclick="showBeginnerTopics()">Beginner</button>
+            <button class="level-btn" onclick="alert('Tez kunda!')">Elementary</button>
+            <button class="level-btn" onclick="alert('Tez kunda!')">Pre-Intermediate</button>
+            <button class="level-btn" onclick="alert('Tez kunda!')">Intermediate</button>
+            <button class="level-btn" onclick="alert('Tez kunda!')">Upper-Intermediate</button>
+            <button class="level-btn" onclick="alert('Tez kunda!')">Advanced</button>
+            <button class="level-btn" onclick="alert('Tez kunda!')">Proficiency</button>
+            <button class="level-btn" onclick="alert('Tez kunda!')">IELTS</button>
+        </div>
+
+        <!-- Beginner mavzulari -->
+        <div class="topics-container" id="topicsMenu">
+            <button class="back-btn" onclick="showLevels()">⬅ Darajalarga qaytish</button>
+            <div class="topic-item" onclick="selectTopic('Present Simple')">Present Simple</div>
+            <div class="topic-item" onclick="selectTopic('Present Simple Negative')">Present Simple Negative</div>
+            <div class="topic-item" onclick="selectTopic('Present Simple Questions')">Present Simple Questions</div>
+            <div class="topic-item" onclick="selectTopic('Present Continuous')">Present Continuous</div>
+            <div class="topic-item" onclick="selectTopic('Past Simple')">Past Simple</div>
+            <div class="topic-item" onclick="selectTopic('Past Simple Negative & Questions')">Past Simple Negative & Questions</div>
+            <div class="topic-item" onclick="selectTopic('Future: Be Going To')">Future: Be Going To</div>
+            <div class="topic-item" onclick="selectTopic('Future: Will')">Future: Will</div>
+        </div>
+
+        <!-- O'yin sozlamalari -->
+        <div class="game-config" id="gameConfigMenu">
+            <button class="back-btn" onclick="showBeginnerTopics()">⬅ Mavzularga qaytish</button>
+            
+            <div class="config-section">
+                <div class="config-title">Teams</div>
+                <div class="options-grid" id="teamsOptions">
+                    <button class="option-btn selected" onclick="selectOption('teams', 1, this)">1</button>
+                    <button class="option-btn" onclick="selectOption('teams', 2, this)">2</button>
+                    <button class="option-btn" onclick="selectOption('teams', 3, this)">3</button>
+                    <button class="option-btn" onclick="selectOption('teams', 4, this)">4</button>
+                    <button class="option-btn" onclick="selectOption('teams', 5, this)">5</button>
+                    <button class="option-btn" onclick="selectOption('teams', 6, this)">6</button>
+                    <button class="option-btn" onclick="selectOption('teams', 7, this)">7</button>
+                    <button class="option-btn" onclick="selectOption('teams', 8, this)">8</button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-title">Grid Size</div>
+                <div class="options-grid" id="gridOptions">
+                    <button class="option-btn" onclick="selectOption('grid', 8, this)">8</button>
+                    <button class="option-btn" onclick="selectOption('grid', 16, this)">16</button>
+                    <button class="option-btn" onclick="selectOption('grid', 24, this)">24</button>
+                    <button class="option-btn selected" onclick="selectOption('grid', 32, this)">32</button>
+                </div>
+            </div>
+
+            <button class="start-game-btn" onclick="startGame()">START GAME</button>
+        </div>
+
+        <!-- Asosiy O'yin Maydoni -->
+        <div class="game-board-container" id="gameBoardMenu">
+            <button class="back-btn" onclick="document.getElementById('gameConfigMenu').style.display='flex'; document.getElementById('gameBoardMenu').style.display='none'; document.getElementById('logoSection').style.display='flex';">⬅ Sozlamalarga qaytish</button>
+            
+            <div class="teams-scoreboard" id="teamsScoreboard"></div>
+
+            <div class="grid-board" id="gridBoard"></div>
+        </div>
+
+        <!-- Savol Modali -->
+        <div class="question-modal" id="questionModal">
+            <div class="question-card">
+                <div class="q-header" id="modalQuestionNumber">Question 1</div>
+                <div class="q-body">
+                    <div class="q-text" id="modalQuestionText">Savol</div>
+                    <div class="q-answer-box" id="modalAnswerText">Javob</div>
+                </div>
+                <div class="q-footer">
+                    <button class="ans-btn btn-check" id="checkBtn" onclick="checkAnswer()">🔍 Check</button>
+                    <button class="ans-btn btn-oops" id="oopsBtn" onclick="answerResult(false)">❌ Oops!</button>
+                    <button class="ans-btn btn-okay" id="okayBtn" onclick="answerResult(true)">✔ Okay!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- G'olibni e'lon qilish Modali -->
+        <div class="winner-modal" id="winnerModal">
+            <div class="winner-card">
+                <div class="winner-title" id="winnerTitle">🎉 YOU WIN! 🎉</div>
+                <div class="winner-text" id="winnerText">Team 3</div>
+                <button class="play-btn" onclick="showLevels()">Yana o'ynash</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameSettings = { teams: 1, grid: 32, topic: 'Present Simple' };
+        let currentTeam = 1;
+        let teamScores = {};
+        let activeCell = null;
+        let currentQuestionData = null;
+        let openedCellsCount = 0;
+        let totalCellsCount = 0;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playOkayMelody() {
+            initAudio();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, index) => {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.12);
+                
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime + index * 0.12);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + index * 0.12 + 0.3);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(audioCtx.currentTime + index * 0.12);
+                osc.stop(audioCtx.currentTime + index * 0.12 + 0.3);
+            });
+        }
+
+        function playOopsMelody() {
+            initAudio();
+            const notes = [300, 240, 180];
+            notes.forEach((freq, index) => {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.18);
+                
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime + index * 0.18);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + index * 0.18 + 0.4);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(audioCtx.currentTime + index * 0.18);
+                osc.stop(audioCtx.currentTime + index * 0.18 + 0.4);
+            });
+        }
+
+        const topicQuestions = {
+            'Present Simple': {
+                1: { q: "I ...................... tennis every weekend. [play]", a: "play", type: "normal" },
+                2: { q: "She ...................... to school by bus. [go]", a: "goes", type: "normal" },
+                3: { q: "They ...................... English very well. [speak]", a: "speak", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "He ...................... a lot of books. [read]", a: "reads", type: "normal" },
+                6: { q: "We ...................... in Tashkent. [live]", a: "live", type: "normal" },
+                7: { q: "My cat ...................... milk. [drink]", a: "drinks", type: "normal" },
+                8: { q: "You ...................... hard every day. [work]", a: "work", type: "normal" },
+                9: { q: "The sun ...................... in the east. [rise]", a: "rises", type: "normal" },
+                10: { q: "Birds ...................... in the sky. [fly]", a: "fly", type: "normal" },
+                11: { q: "My mother ...................... delicious food. [cook]", a: "cooks", type: "normal" },
+                12: { q: "Children ...................... playing games. [like]", a: "like", type: "normal" },
+                13: { q: "He always ...................... up early. [get]", a: "gets", type: "normal" },
+                14: { q: "Water ...................... at 100 degrees Celsius. [boil]", a: "boils", type: "normal" },
+                15: { q: "I ...................... what you mean. [understand]", a: "understand", type: "normal" },
+                16: { q: "Dogs ...................... loyal animals. [be -> is/am/are]", a: "are", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "She ...................... nice dresses. [wear]", a: "wears", type: "normal" },
+                19: { q: "We ...................... football on Sundays. [play]", a: "play", type: "normal" },
+                20: { q: "My father ...................... a car. [drive]", a: "drives", type: "normal" },
+                21: { q: "They ...................... breakfast at 7 AM. [eat]", a: "eat", type: "normal" },
+                22: { q: "He ...................... German fluently. [speak]", a: "speaks", type: "normal" },
+                23: { q: "I ...................... my homework in the evening. [do]", a: "do", type: "normal" },
+                24: { q: "The train ...................... at 9 PM. [arrive]", a: "arrives", type: "normal" },
+                25: { q: "Students ...................... to teachers carefully. [listen]", a: "listen", type: "normal" },
+                26: { q: "It often ...................... in winter here. [snow]", a: "snows", type: "normal" },
+                27: { q: "You ...................... good music. [like]", a: "like", type: "normal" },
+                28: { q: "Tom ...................... hard at school. [study]", a: "studies", type: "normal" },
+                29: { q: "We ...................... a big family. [have]", a: "have", type: "normal" },
+                30: { q: "She ...................... to music now. [listen]", a: "is listening", type: "normal" },
+                31: { q: "Cats ...................... fish. [eat]", a: "eat", type: "normal" },
+                32: { q: "He ...................... a new bike. [have]", a: "has", type: "normal" }
+            },
+            'Present Simple Negative': {
+                1: { q: "I ...................... coffee in the morning. [not drink]", a: "don't drink", type: "normal" },
+                2: { q: "She ...................... meat. [not eat]", a: "doesn't eat", type: "normal" },
+                3: { q: "They ...................... English on Sundays. [not study]", a: "don't study", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "He ...................... football after school. [not play]", a: "doesn't play", type: "normal" },
+                6: { q: "We ...................... in a big house. [not live]", a: "don't live", type: "normal" },
+                7: { q: "My brother ...................... early at weekends. [not get up]", a: "doesn't get up", type: "normal" },
+                8: { q: "You ...................... to music loudly. [not listen]", a: "don't listen", type: "normal" },
+                9: { q: "Cats ...................... water like dogs. [not like]", a: "don't like", type: "normal" },
+                10: { q: "My sister ...................... TV in the evening. [not watch]", a: "doesn't watch", type: "normal" },
+                11: { q: "Tom and Jerry ...................... real people. [not be]", a: "aren't (are not)", type: "normal" },
+                12: { q: "I ...................... what you mean. [not understand]", a: "don't understand", type: "normal" },
+                13: { q: "Anna ...................... French at school. [not speak]", a: "doesn't speak", type: "normal" },
+                14: { q: "The sun ...................... shine at night. [not shine]", a: "doesn't shine", type: "normal" },
+                15: { q: "We ...................... to school on Saturdays. [not go]", a: "don't go", type: "normal" },
+                16: { q: "My dad ...................... drive a red car. [not drive]", a: "doesn't drive", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "Birds ...................... swim in the sea. [not swim]", a: "don't swim", type: "normal" },
+                19: { q: "He ...................... a cold shower in winter. [not take]", a: "doesn't take", type: "normal" },
+                20: { q: "They ...................... homework on Fridays. [not do]", a: "don't do", type: "normal" },
+                21: { q: "My mum ...................... work on Sundays. [not work]", a: "doesn't work", type: "normal" },
+                22: { q: "I ...................... like wearing hats. [not like]", a: "don't like", type: "normal" },
+                23: { q: "The baby ...................... sleep all night. [not sleep]", a: "doesn't sleep", type: "normal" },
+                24: { q: "You ...................... listen to the teacher. [not listen]", a: "don't listen", type: "normal" },
+                25: { q: "She ...................... play computer games. [not play]", a: "doesn't play", type: "normal" },
+                26: { q: "We ...................... know the answer. [not know]", a: "don't know", type: "normal" },
+                27: { q: "He ...................... read thick books. [not read]", a: "doesn't read", type: "normal" },
+                28: { q: "Dogs ...................... fly in the sky. [not fly]", a: "don't fly", type: "normal" },
+                29: { q: "I ...................... want to go home yet. [not want]", a: "don't want", type: "normal" },
+                30: { q: "They ...................... like cold tea. [not like]", a: "don't like", type: "normal" },
+                31: { q: "She ...................... drink milk. [not drink]", a: "doesn't drink", type: "normal" },
+                32: { q: "He ...................... have a pet. [not have]", a: "doesn't have", type: "normal" }
+            },
+            'Present Simple Questions': {
+                1: { q: "...................... you like ice cream? [Do / Does]", a: "Do", type: "normal" },
+                2: { q: "...................... she speak English? [Do / Does]", a: "Does", type: "normal" },
+                3: { q: "Where ...................... you live? [do / does]", a: "do", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "What time ...................... he get up? [do / does]", a: "does", type: "normal" },
+                6: { q: "...................... they play football? [Do / Does]", a: "Do", type: "normal" },
+                7: { q: "Why ...................... you cry? [do / does]", a: "do", type: "normal" },
+                8: { q: "...................... your father work here? [Do / Does]", a: "Does", type: "normal" },
+                9: { q: "How often ...................... she clean her room? [do / does]", a: "does", type: "normal" },
+                10: { q: "...................... cats eat fish? [Do / Does]", a: "Do", type: "normal" },
+                11: { q: "When ...................... the lesson start? [do / does]", a: "does", type: "normal" },
+                12: { q: "...................... you know him? [Do / Does]", a: "Do", type: "normal" },
+                13: { q: "Who ...................... you want to see? [do / does]", a: "do", type: "normal" },
+                14: { q: "...................... it rain a lot here? [Do / Does]", a: "Does", type: "normal" },
+                15: { q: "What ...................... they usually eat for lunch? [do / does]", a: "do", type: "normal" },
+                16: { q: "...................... your mother cook well? [Do / Does]", a: "Does", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "Where ...................... your friends live? [do / does]", a: "do", type: "normal" },
+                19: { q: "...................... he play the guitar? [Do / Does]", a: "Does", type: "normal" },
+                20: { q: "Why ...................... she look so happy? [do / does]", a: "does", type: "normal" },
+                21: { q: "...................... we need to buy tickets? [Do / Does]", a: "Do", type: "normal" },
+                22: { q: "What games ...................... your brother play? [do / does]", a: "does", type: "normal" },
+                23: { q: "...................... you understand this rule? [Do / Does]", a: "Do", type: "normal" },
+                24: { q: "How much ...................... this book cost? [do / does]", a: "does", type: "normal" },
+                25: { q: "...................... students wear uniforms at your school? [Do / Does]", a: "Do", type: "normal" },
+                26: { q: "What time ...................... the train leave? [do / does]", a: "does", type: "normal" },
+                27: { q: "...................... you like watching films? [Do / Does]", a: "Do", type: "normal" },
+                28: { q: "Where ...................... he go after school? [do / does]", a: "does", type: "normal" },
+                29: { q: "...................... they speak English? [Do / Does]", a: "Do", type: "normal" },
+                30: { q: "What ...................... you do on Sundays? [do / does]", a: "do", type: "normal" },
+                31: { q: "...................... she have a car? [Do / Does]", a: "Does", type: "normal" },
+                32: { q: "Why ...................... you like reading? [do / does]", a: "do", type: "normal" }
+            },
+            'Present Continuous': {
+                1: { q: "I ...................... a book right now. [read]", a: "am reading", type: "normal" },
+                2: { q: "She ...................... dinner at the moment. [cook]", a: "is cooking", type: "normal" },
+                3: { q: "They ...................... football in the yard. [play]", a: "are playing", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "Look! It ...................... outside. [rain]", a: "is raining", type: "normal" },
+                6: { q: "We ...................... English grammar now. [study]", a: "are studying", type: "normal" },
+                7: { q: "He ...................... to music on his headphones. [listen]", a: "is listening", type: "normal" },
+                8: { q: "Listen! Someone ...................... at the door. [knock]", a: "is knocking", type: "normal" },
+                9: { q: "You ...................... very fast! [run]", a: "are running", type: "normal" },
+                10: { q: "The baby ...................... in the bedroom. [sleep]", a: "is sleeping", type: "normal" },
+                11: { q: "What ...................... you doing? [be -> am/is/are]", a: "are", type: "normal" },
+                12: { q: "Cats ...................... in the sun right now. [sit]", a: "are sitting", type: "normal" },
+                13: { q: "My sister ...................... a nice picture. [draw]", a: "is drawing", type: "normal" },
+                14: { q: "The sun ...................... brightly today. [shine]", a: "is shining", type: "normal" },
+                15: { q: "We ...................... breakfast at present. [eat]", a: "are eating", type: "normal" },
+                16: { q: "He ...................... a new computer game. [play]", a: "is playing", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "They ...................... for the bus. [wait]", a: "are waiting", type: "normal" },
+                19: { q: "I ...................... wearing a jacket today. [not wear]", a: "am not wearing", type: "normal" },
+                20: { q: "She ...................... working today. [not work]", a: "isn't working", type: "normal" },
+                21: { q: "Why ...................... you crying? [be -> am/is/are]", a: "are", type: "normal" },
+                22: { q: "Birds ...................... in the sky right now. [fly]", a: "are flying", type: "normal" },
+                23: { q: "My friend ...................... to Tashkent this week. [travel]", a: "is traveling", type: "normal" },
+                24: { q: "Look! The children ...................... in the pool. [swim]", a: "are swimming", type: "normal" },
+                25: { q: "I ...................... a letter to my friend. [write]", a: "am writing", type: "normal" },
+                26: { q: "The dog ...................... after a cat. [run]", a: "is running", type: "normal" },
+                27: { q: "We ...................... to music now. [listen]", a: "are listening", type: "normal" },
+                28: { q: "She ...................... tea at the moment. [drink]", a: "is drinking", type: "normal" },
+                29: { q: "They ...................... home from school. [walk]", a: "are walking", type: "normal" },
+                30: { q: "He ...................... his car now. [wash]", a: "is washing", type: "normal" },
+                31: { q: "I ...................... TV right now. [watch]", a: "am watching", type: "normal" },
+                32: { q: "You ...................... listening to me. [be -> am/is/are]", a: "are", type: "normal" }
+            },
+            'Past Simple': {
+                1: { q: "I ...................... to London last year. [go]", a: "went", type: "normal" },
+                2: { q: "She ...................... a new car yesterday. [buy]", a: "bought", type: "normal" },
+                3: { q: "They ...................... football last Sunday. [play]", a: "played", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "He ...................... an interesting book last week. [read]", a: "read", type: "normal" },
+                6: { q: "We ...................... our grandparents on Sunday. [visit]", a: "visited", type: "normal" },
+                7: { q: "My brother ...................... early this morning. [get up]", a: "got up", type: "normal" },
+                8: { q: "You ...................... a great job yesterday. [do]", a: "did", type: "normal" },
+                9: { q: "It ...................... heavily last night. [rain]", a: "rained", type: "normal" },
+                10: { q: "She ...................... a delicious cake yesterday. [make]", a: "made", type: "normal" },
+                11: { q: "Tom ...................... English at university. [study]", a: "studied", type: "normal" },
+                12: { q: "I ...................... my keys on the table an hour ago. [leave]", a: "left", type: "normal" },
+                13: { q: "They ...................... a movie last night. [watch]", a: "watched", type: "normal" },
+                14: { q: "The train ...................... at 5 PM yesterday. [arrive]", a: "arrived", type: "normal" },
+                15: { q: "We ...................... in a nice hotel last summer. [stay]", a: "stayed", type: "normal" },
+                16: { q: "He ...................... a letter to his friend. [write]", a: "wrote", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "Birds ...................... away for the winter. [fly]", a: "flew", type: "normal" },
+                19: { q: "I ...................... a lot of coffee yesterday. [drink]", a: "drank", type: "normal" },
+                20: { q: "She ...................... her homework in the evening. [finish]", a: "finished", type: "normal" },
+                21: { q: "They ...................... very tired after the trip. [be -> was/were]", a: "were", type: "normal" },
+                22: { q: "He ...................... his phone at home. [forget]", a: "forgot", type: "normal" },
+                23: { q: "We ...................... dinner in a restaurant. [eat]", a: "ate", type: "normal" },
+                24: { q: "You ...................... a funny joke yesterday. [tell]", a: "told", type: "normal" },
+                25: { q: "The baby ...................... all night long. [sleep]", a: "slept", type: "normal" },
+                26: { q: "Ann ...................... to music on the radio. [listen]", a: "listened", type: "normal" },
+                27: { q: "I ...................... my old friend in the street. [meet]", a: "met", type: "normal" },
+                28: { q: "He ...................... a prize last year. [win]", a: "won", type: "normal" },
+                29: { q: "We ...................... English test last week. [have]", a: "had", type: "normal" },
+                30: { q: "She ...................... a song at the party. [sing]", a: "sang", type: "normal" },
+                31: { q: "They ...................... a new house. [build]", a: "built", type: "normal" },
+                32: { q: "I ...................... my hand. [hurt]", a: "hurt", type: "normal" }
+            },
+            'Past Simple Negative & Questions': {
+                1: { q: "I ...................... to school yesterday. [not go]", a: "didn't go", type: "normal" },
+                2: { q: "...................... you go to the cinema yesterday? [Did / Was]", a: "Did", type: "normal" },
+                3: { q: "She ...................... meat for lunch. [not eat]", a: "didn't eat", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "...................... she buy a new dress? [Did / Does]", a: "Did", type: "normal" },
+                6: { q: "They ...................... football last weekend. [not play]", a: "didn't play", type: "normal" },
+                7: { q: "Where ...................... you go last summer? [did / do]", a: "did", type: "normal" },
+                8: { q: "He ...................... the book I gave him. [not read]", a: "didn't read", type: "normal" },
+                9: { q: "What time ...................... he arrive? [did / does]", a: "did", type: "normal" },
+                10: { q: "We ...................... anything at the shop. [not buy]", a: "didn't buy", type: "normal" },
+                11: { q: "...................... they play football yesterday? [Did / Do]", a: "Did", type: "normal" },
+                12: { q: "My brother ...................... early yesterday. [not get up]", a: "didn't get up", type: "normal" },
+                13: { q: "Why ...................... you late yesterday? [were / did]", a: "were", type: "normal" },
+                14: { q: "You ...................... to the teacher carefully. [not listen]", a: "didn't listen", type: "normal" },
+                15: { q: "...................... your father fix the car? [Did / Does]", a: "Did", type: "normal" },
+                16: { q: "It ...................... rain last week. [not rain]", a: "didn't rain", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "How ...................... you travel to London? [did / do]", a: "did", type: "normal" },
+                19: { q: "She ...................... watch TV last night. [not watch]", a: "didn't watch", type: "normal" },
+                20: { q: "...................... she finish her work? [Did / Does]", a: "Did", type: "normal" },
+                21: { q: "They ...................... at home yesterday. [not be]", a: "weren't (were not)", type: "normal" },
+                22: { q: "When ...................... the Second World War end? [did / does]", a: "did", type: "normal" },
+                23: { q: "I ...................... understand the movie. [not understand]", a: "didn't understand", type: "normal" },
+                24: { q: "...................... you see my keys? [Did / Do]", a: "Did", type: "normal" },
+                25: { q: "Anna ...................... speak French last year. [not speak]", a: "didn't speak", type: "normal" },
+                26: { q: "Who ...................... you meet at the party? [did / do]", a: "did", type: "normal" },
+                27: { q: "We ...................... go to the party. [not go]", a: "didn't go", type: "normal" },
+                28: { q: "...................... it rain last night? [Did / Does]", a: "Did", type: "normal" },
+                29: { q: "Tom ...................... eat vegetables yesterday. [not eat]", a: "didn't eat", type: "normal" },
+                30: { q: "Why ...................... you cry yesterday? [did / do]", a: "did", type: "normal" },
+                31: { q: "He ...................... like the film. [not like]", a: "didn't like", type: "normal" },
+                32: { q: "...................... they call you? [Did / Do]", a: "Did", type: "normal" }
+            },
+            'Future: Be Going To': {
+                1: { q: "I ...................... visit my grandparents tomorrow. [be going to visit]", a: "am going to visit", type: "normal" },
+                2: { q: "She ...................... buy a new phone next week. [be going to buy]", a: "is going to buy", type: "normal" },
+                3: { q: "They ...................... play football this evening. [be going to play]", a: "are going to play", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "Look at the clouds! It ...................... rain. [be going to rain]", a: "is going to", type: "normal" },
+                6: { q: "We ...................... move to a new house soon. [be going to move]", a: "are going to move", type: "normal" },
+                7: { q: "He ...................... study medicine at university. [be going to study]", a: "is going to study", type: "normal" },
+                8: { q: "What ...................... you going to do tonight? [be -> am/is/are]", a: "are", type: "normal" },
+                9: { q: "She ...................... not going to participate in the race. [be -> am/is/are]", a: "is", type: "normal" },
+                10: { q: "I ...................... watch a film tonight. [be going to watch]", a: "am going to watch", type: "normal" },
+                11: { q: "They ...................... travel to Paris next summer. [be going to travel]", a: "are going to travel", type: "normal" },
+                12: { q: "My brother ...................... buy a car. [is going to buy]", a: "is going to buy", type: "normal" },
+                13: { q: "...................... you going to help me? [be -> Am/Is/Are]", a: "Are", type: "normal" },
+                14: { q: "It ...................... be a hot day today. [is going to]", a: "is going to", type: "normal" },
+                15: { q: "We ...................... have a party on Saturday. [are going to]", a: "are going to", type: "normal" },
+                16: { q: "He ...................... not going to work tomorrow. [be -> am/is/are]", a: "is", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "What ...................... she going to wear? [be -> am/is/are]", a: "is", type: "normal" },
+                19: { q: "I ...................... learn Spanish next year. [am going to]", a: "am going to", type: "normal" },
+                20: { q: "The train ...................... leave in a minute. [is going to]", a: "is going to", type: "normal" },
+                21: { q: "They ...................... not going to sell their house. [be -> am/is/are]", a: "are", type: "normal" },
+                22: { q: "...................... he going to apply for the job? [be -> Am/Is/Are]", a: "Is", type: "normal" },
+                23: { q: "We ...................... cook pizza tonight. [are going to]", a: "are going to", type: "normal" },
+                24: { q: "You ...................... going to love this movie! [be -> am/is/are]", a: "are", type: "normal" },
+                25: { q: "She ...................... visit her aunt on Sunday. [is going to]", a: "is going to", type: "normal" },
+                26: { q: "I ...................... not going to give up. [be -> am/is/are]", a: "am", type: "normal" },
+                27: { q: "What are you ...................... to do tomorrow? [going]", a: "going", type: "normal" },
+                28: { q: "They ...................... start a new business. [are going to]", a: "are going to", type: "normal" },
+                29: { q: "He ...................... clean his room this afternoon. [is going to]", a: "is going to", type: "normal" },
+                30: { q: "She ...................... not going to cook today. [be -> am/is/are]", a: "is", type: "normal" },
+                31: { q: "We ...................... going to win. [be -> am/is/are]", a: "are", type: "normal" },
+                32: { q: "I ...................... going to sleep early. [be -> am/is/are]", a: "am", type: "normal" }
+            },
+            'Future: Will': {
+                1: { q: "I think it ...................... rain tomorrow. [will]", a: "will", type: "normal" },
+                2: { q: "She ...................... help you with your homework. [will]", a: "will", type: "normal" },
+                3: { q: "They ...................... probably come to the party. [will]", a: "will", type: "normal" },
+                4: { q: "ZOOL PRIZE (+777 ball)", a: "Click Okay to get +777 points!", type: "bonus", val: 777 },
+                5: { q: "I ...................... call you later tonight. [will]", a: "will", type: "normal" },
+                6: { q: "He ...................... be a great doctor one day. [will]", a: "will", type: "normal" },
+                7: { q: "We ...................... win this game! [will]", a: "will", type: "normal" },
+                8: { q: "...................... you marry me? [Will]", a: "Will", type: "normal" },
+                9: { q: "I promise I ...................... tell anyone. [will not]", a: "won't (will not)", type: "normal" },
+                10: { q: "People ...................... live on Mars in the future. [will]", a: "will", type: "normal" },
+                11: { q: "She ...................... be late if she doesn't hurry. [will]", a: "will", type: "normal" },
+                12: { q: "I ...................... have a cup of tea, please. [will]", a: "will", type: "normal" },
+                13: { q: "...................... you open the window, please? [Will]", a: "Will", type: "normal" },
+                14: { q: "The phone is ringing. I ...................... answer it. [will]", a: "will", type: "normal" },
+                15: { q: "He ...................... not agree with your plan. [will]", a: "will", type: "normal" },
+                16: { q: "What time ...................... you arrive? [will]", a: "will", type: "normal" },
+                17: { q: "NOT BALL (Hech narsa bermaydi va olmaydi)", a: "No points given or taken.", type: "neutral" },
+                18: { q: "I'm sure they ...................... like the gift. [will]", a: "will", type: "normal" },
+                19: { q: "She ...................... probably pass the test easily. [will]", a: "will", type: "normal" },
+                20: { q: "We ...................... see what happens next. [will]", a: "will", type: "normal" },
+                21: { q: "...................... they win the championship? [Will]", a: "Will", type: "normal" },
+                22: { q: "I ...................... never forget this day. [will]", a: "will", type: "normal" },
+                23: { q: "Everything ...................... be fine. [will]", a: "will", type: "normal" },
+                24: { q: "You ...................... love this amazing book. [will]", a: "will", type: "normal" },
+                25: { q: "He ...................... buy a new laptop tomorrow. [will]", a: "will", type: "normal" },
+                26: { q: "I ...................... do my best to help you. [will]", a: "will", type: "normal" },
+                27: { q: "Nobody ...................... know about our secret. [will]", a: "will", type: "normal" },
+                28: { q: "Tomorrow ...................... be sunny. [will]", a: "will", type: "normal" },
+                29: { q: "I hope you ...................... enjoy your trip. [will]", a: "will", type: "normal" },
+                30: { q: "She ...................... cook dinner tonight. [will]", a: "will", type: "normal" },
+                31: { q: "They ...................... come early. [will]", a: "will", type: "normal" },
+                32: { q: "I ...................... be ready in a minute. [will]", a: "will", type: "normal" }
+            }
+        };
+
+        function showLevels() {
+            initAudio();
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('logoSection').style.display = 'flex';
+            document.getElementById('levelsMenu').style.display = 'flex';
+            document.getElementById('topicsMenu').style.display = 'none';
+            document.getElementById('gameConfigMenu').style.display = 'none';
+            document.getElementById('gameBoardMenu').style.display = 'none';
+            document.getElementById('questionModal').style.display = 'none';
+            document.getElementById('winnerModal').style.display = 'none';
+        }
+
+        function goBackToMain() {
+            document.getElementById('mainMenu').style.display = 'block';
+            document.getElementById('logoSection').style.display = 'flex';
+            document.getElementById('levelsMenu').style.display = 'none';
+            document.getElementById('topicsMenu').style.display = 'none';
+            document.getElementById('gameConfigMenu').style.display = 'none';
+            document.getElementById('gameBoardMenu').style.display = 'none';
+            document.getElementById('questionModal').style.display = 'none';
+            document.getElementById('winnerModal').style.display = 'none';
+        }
+
+        function showBeginnerTopics() {
+            document.getElementById('levelsMenu').style.display = 'none';
+            document.getElementById('logoSection').style.display = 'flex';
+            document.getElementById('topicsMenu').style.display = 'flex';
+            document.getElementById('gameConfigMenu').style.display = 'none';
+            document.getElementById('gameBoardMenu').style.display = 'none';
+            document.getElementById('questionModal').style.display = 'none';
+            document.getElementById('winnerModal').style.display = 'none';
+        }
+
+        function selectTopic(topicName) {
+            gameSettings.topic = topicName;
+            document.getElementById('topicsMenu').style.display = 'none';
+            document.getElementById('logoSection').style.display = 'flex';
+            document.getElementById('gameConfigMenu').style.display = 'flex';
+        }
+
+        function selectOption(type, value, btnElement) {
+            const parent = btnElement.parentElement;
+            parent.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            btnElement.classList.add('selected');
+            gameSettings[type] = value;
+        }
+
+        function startGame() {
+            initAudio();
+            document.getElementById('gameConfigMenu').style.display = 'none';
+            document.getElementById('logoSection').style.display = 'none';
+            document.getElementById('gameBoardMenu').style.display = 'flex';
+            document.getElementById('winnerModal').style.display = 'none';
+            
+            currentTeam = 1;
+            teamScores = {};
+            for (let i = 1; i <= gameSettings.teams; i++) {
+                teamScores[i] = 0;
+            }
+
+            let count = parseInt(gameSettings.grid);
+            totalCellsCount = count;
+            openedCellsCount = 0;
+
+            renderScoreboard();
+
+            const board = document.getElementById('gridBoard');
+            board.innerHTML = '';
+            
+            if (count === 8) {
+                board.style.gridTemplateColumns = `repeat(4, 1fr)`;
+            } else if (count === 16) {
+                board.style.gridTemplateColumns = `repeat(4, 1fr)`;
+            } else if (count === 24) {
+                board.style.gridTemplateColumns = `repeat(6, 1fr)`;
+            } else {
+                board.style.gridTemplateColumns = `repeat(8, 1fr)`;
+            }
+
+            for (let i = 1; i <= count; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.innerText = i;
+                cell.onclick = function() {
+                    if (!cell.classList.contains('opened')) {
+                        activeCell = cell;
+                        openQuestionModal(i);
+                    }
+                };
+                board.appendChild(cell);
+            }
+        }
+
+        function openQuestionModal(cellNumber) {
+            document.getElementById('gameBoardMenu').style.display = 'none';
+            document.getElementById('questionModal').style.display = 'flex';
+
+            document.getElementById('modalQuestionNumber').innerText = `Team ${currentTeam} - Question ${cellNumber}`;
+            
+            const topicDict = topicQuestions[gameSettings.topic] || topicQuestions['Present Simple'];
+            currentQuestionData = topicDict[cellNumber] || { q: "Sample Question", a: "Sample Answer", type: "normal" };
+
+            document.getElementById('modalQuestionText').innerText = currentQuestionData.q;
+            document.getElementById('modalAnswerText').innerText = currentQuestionData.a;
+            
+            document.getElementById('modalAnswerText').style.display = 'none';
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('oopsBtn').style.display = 'none';
+            document.getElementById('okayBtn').style.display = 'none';
+        }
+
+        function checkAnswer() {
+            document.getElementById('modalAnswerText').style.display = 'block';
+            document.getElementById('checkBtn').style.display = 'none';
+
+            if (currentQuestionData.type === 'bonus') {
+                document.getElementById('oopsBtn').style.display = 'none';
+                document.getElementById('okayBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('oopsBtn').style.display = 'inline-block';
+                document.getElementById('okayBtn').style.display = 'inline-block';
+            }
+        }
+
+        function answerResult(isCorrect) {
+            activeCell.classList.add('opened');
+            openedCellsCount++;
+
+            if (isCorrect) {
+                playOkayMelody();
+            } else {
+                playOopsMelody();
+            }
+
+            if (currentQuestionData.type === 'bonus') {
+                if (isCorrect) {
+                    teamScores[currentTeam] += currentQuestionData.val;
+                }
+            } else if (currentQuestionData.type === 'neutral') {
+                // Hech narsa o'zgarmaydi
+            } else {
+                if (isCorrect) {
+                    teamScores[currentTeam] += 10;
+                } else {
+                    teamScores[currentTeam] -= 10;
+                }
+            }
+
+            currentTeam++;
+            if (currentTeam > gameSettings.teams) {
+                currentTeam = 1;
+            }
+
+            renderScoreboard();
+
+            document.getElementById('questionModal').style.display = 'none';
+
+            if (openedCellsCount >= totalCellsCount) {
+                showWinnerModal();
+            } else {
+                document.getElementById('gameBoardMenu').style.display = 'flex';
+            }
+        }
+
+        function showWinnerModal() {
+            document.getElementById('gameBoardMenu').style.display = 'none';
+            document.getElementById('winnerModal').style.display = 'flex';
+
+            let bestTeam = 1;
+            let maxScore = teamScores[1];
+            for (let i = 2; i <= gameSettings.teams; i++) {
+                if (teamScores[i] > maxScore) {
+                    maxScore = teamScores[i];
+                    bestTeam = i;
+                }
+            }
+
+            document.getElementById('winnerTitle').innerText = "🎉 YOU WIN! 🎉";
+            document.getElementById('winnerText').innerText = `Team ${bestTeam} yutdi! (${maxScore} ball)`;
+
+            triggerConfetti();
+        }
+
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 7,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 }
+                });
+                confetti({
+                    particleCount: 7,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 }
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        function renderScoreboard() {
+            const scoreboard = document.getElementById('teamsScoreboard');
+            scoreboard.innerHTML = '';
+
+            for (let i = 1; i <= gameSettings.teams; i++) {
+                const teamBox = document.createElement('div');
+                teamBox.className = 'team-box';
+                if (i === currentTeam) {
+                    teamBox.classList.add('active-turn');
+                }
+
+                teamBox.innerHTML = `
+                    <div class="team-name">Team ${i}</div>
+                    <div class="team-score">${teamScores[i] || 0}</div>
+                `;
+                scoreboard.appendChild(teamBox);
+            }
+        }
+    </script>
+
+</body>
+</html>
